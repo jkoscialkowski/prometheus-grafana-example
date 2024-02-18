@@ -1,0 +1,12 @@
+services:
+  unreliable-app:
+    build: app
+    ports:
+      - "8000:80"
+  locust:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile --config /mnt/locust/locust.conf
