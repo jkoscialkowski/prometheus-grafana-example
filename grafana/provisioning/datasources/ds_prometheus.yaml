@@ -1,0 +1,10 @@
+---
+apiVersion: 1
+datasources:
+- name: prometheus
+  type: prometheus
+  url: http://prometheus:9090
+  editable: true
+  jsonData:
+    defaultEditor: code
+    httpMethod: POST
