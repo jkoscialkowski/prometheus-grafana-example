@@ -1,8 +1,10 @@
+import time
+
 from random import random
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
-from prometheus_client import Counter, Summary, make_asgi_app
+from prometheus_client import Counter, Histogram, make_asgi_app
 
 app = FastAPI()
 
@@ -13,12 +15,13 @@ c_total_requests = Counter("requests", "Total number of requests")
 c_failed_requests = Counter("failed_requests", "Number of failed requests", ["status_code"])
 c_failed_requests.labels("418")
 c_failed_requests.labels("420")
-s_latency = Summary("request_latency_seconds", "Request latency in seconds")
+h_latency = Histogram("request_latency_seconds", "Request latency in seconds")
 
 
 @app.get("/")
 async def root():
     number = random()
+    time.sleep(number / 10 + 0.05)
     if number < 0.001:
         raise HTTPException(status_code=420, detail="Blaze it")
     if number < 0.1:
@@ -29,7 +32,7 @@ async def root():
 
 @app.middleware("http")
 async def log_metrics(request: Request, call_next):
-    with s_latency.time():
+    with h_latency.time():
         c_total_requests.inc()
         response = await call_next(request)
 
